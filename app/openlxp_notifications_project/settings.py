@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -34,7 +33,6 @@ DEBUG = False
 mimetypes.add_type("text/css", ".css", True)
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -78,7 +76,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'openlxp_notifications_project.wsgi.application'
 
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -121,7 +118,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -135,7 +131,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
@@ -144,7 +139,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/openlxp_notifications/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 LOG_PATH = os.environ.get('LOG_PATH')
 LOGGING = {
@@ -183,4 +177,3 @@ LOGGING = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
-

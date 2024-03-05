@@ -3,7 +3,7 @@ from django.forms import ValidationError
 from django.urls import reverse
 from model_utils.models import TimeStampedModel
 
-from openlxp_notifications.management.utils.notification import \
+from openlxp_notifications.management.utils.ses_client import \
     email_verification
 
 
@@ -24,6 +24,7 @@ class ReceiverEmailConfiguration(TimeStampedModel):
         return f'{self.id}'
 
     def save(self, *args, **kwargs):
+        # Only for SMTP connections using SES
         email_verification(self.email_address)
         return super(ReceiverEmailConfiguration, self).save(*args, **kwargs)
 
@@ -39,6 +40,7 @@ class SenderEmailConfiguration(TimeStampedModel):
         if not self.pk and SenderEmailConfiguration.objects.exists():
             raise ValidationError('There is can be only one '
                                   'SenderEmailConfiguration instance')
+        email_verification(self.sender_email_address)
         return super(SenderEmailConfiguration, self).save(*args, **kwargs)
 
 
@@ -46,8 +48,8 @@ class EmailConfiguration(TimeStampedModel):
     """Model for Email Configuration """
 
     LOG_TYPE_CHOICES = (
-        ('attachment', 'ATTACHMENT'),
-        ('message', 'MESSAGE'),
+        ('attachment', 'Attach Logs to email'),
+        ('message', 'Send notification message'),
     )
 
     Subject = models.CharField(max_length=200,
@@ -59,15 +61,18 @@ class EmailConfiguration(TimeStampedModel):
 
     Email_Us = models.EmailField(max_length=254,
                                  help_text='Enter email address')
+    Banner = models.ImageField(upload_to='banner',
+                               help_text='add logo image',
+                               default='banner.jpg')
 
     FAQ_URL = models.CharField(max_length=200)
 
     Unsubscribe_Email_ID = models.EmailField(max_length=254,
                                              help_text='Enter email address')
-    Logs_Type = models.CharField(max_length=200, choices=LOG_TYPE_CHOICES,
-                                 help_text='Check readme files of the '
-                                           'components before choosing the '
-                                           ' log type')
+    Content_Type = models.CharField(max_length=200, choices=LOG_TYPE_CHOICES,
+                                    help_text='Check readme files of the '
+                                              'components before choosing the '
+                                              ' log type')
 
     HTML_File = models.FileField(upload_to='HTML_Files',
                                  help_text='Check sample HTML files in the '

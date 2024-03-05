@@ -14,6 +14,7 @@ class TestSetUp(TestCase):
 
         self.receive_email_list = ['receiver1@openlxp.com',
                                    'receiver1@openlxp.com']
+        self.receive_email_list1 = 'receiver1@openlxp.com'
         self.sender_email = "sender@openlxp.com"
 
         self.Subject = 'Test Email'

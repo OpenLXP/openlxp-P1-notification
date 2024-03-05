@@ -1,11 +1,11 @@
-from django.test import SimpleTestCase, tag
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
+from django.test import SimpleTestCase, tag
 
-from openlxp_notifications.models import (ReceiverEmailConfiguration,
-                                          SenderEmailConfiguration,
-                                          EmailConfiguration)
-from unittest.mock import patch
+from openlxp_notifications.models import (EmailConfiguration,
+                                          ReceiverEmailConfiguration,
+                                          SenderEmailConfiguration)
 
 
 @tag('unit')
@@ -59,12 +59,13 @@ class ModelTests(SimpleTestCase):
         Email_Us = 'example@test.com'
         FAQ_URL = 'https.abc.xyz'
         Unsubscribe_Email_ID = 'example@test.com'
-        Logs_Type = 'Message'
+        Content_Type = 'Message'
 
         email_config = EmailConfiguration(
             Subject=Subject, Email_Content=Email_Content,
             Signature=Signature, Email_Us=Email_Us, FAQ_URL=FAQ_URL,
-            Unsubscribe_Email_ID=Unsubscribe_Email_ID, Logs_Type=Logs_Type)
+            Unsubscribe_Email_ID=Unsubscribe_Email_ID,
+            Content_Type=Content_Type)
 
         self.assertEqual(email_config.Subject,
                          Subject)
@@ -78,8 +79,8 @@ class ModelTests(SimpleTestCase):
                          FAQ_URL)
         self.assertEqual(email_config.Unsubscribe_Email_ID,
                          Unsubscribe_Email_ID)
-        self.assertEqual(email_config.Logs_Type,
-                         Logs_Type)
+        self.assertEqual(email_config.Content_Type,
+                         Content_Type)
 
     def test_create_two_email_configuration(self):
         """Test that trying to create more than one EMAIL Configuration throws
@@ -92,13 +93,13 @@ class ModelTests(SimpleTestCase):
                 Email_Us = 'example@test.com'
                 FAQ_URL = 'https.abc.xyz'
                 Unsubscribe_Email_ID = 'example@test.com'
-                Logs_Type = 'Message'
+                Content_Type = 'Message'
 
                 emailConfig = EmailConfiguration(
                     Subject=Subject, Email_Content=Email_Content,
                     Signature=Signature, Email_Us=Email_Us, FAQ_URL=FAQ_URL,
                     Unsubscribe_Email_ID=Unsubscribe_Email_ID,
-                    Logs_Type=Logs_Type)
+                    Content_Type=Content_Type)
 
                 Subject1 = 'Notifications'
                 Email_Content1 = 'Please find the email'
@@ -106,13 +107,13 @@ class ModelTests(SimpleTestCase):
                 Email_Us1 = 'example@test.com'
                 FAQ_URL1 = 'https.abc.xyz'
                 Unsubscribe_Email_ID1 = 'example@test.com'
-                Logs_Type1 = 'Message'
+                Content_Type1 = 'Message'
 
                 emailConfig2 = EmailConfiguration(
                     Subject=Subject1, Email_Content=Email_Content1,
                     Signature=Signature1, Email_Us=Email_Us1, FAQ_URL=FAQ_URL1,
                     Unsubscribe_Email_ID=Unsubscribe_Email_ID1,
-                    Logs_Type=Logs_Type1)
+                    Content_Type=Content_Type1)
 
                 emailConfig.save()
                 emailConfig2.save()

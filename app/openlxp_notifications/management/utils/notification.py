@@ -1,46 +1,11 @@
 import logging
 from email.mime.application import MIMEApplication
-import boto3
+
 from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.mail import EmailMessage
+
 logger = logging.getLogger('dict_config_logger')
-
-
-def email_verification(email):
-    """Function to send email verification"""
-    ses = boto3.client('ses')
-    check = check_if_email_verified(email)
-
-    if check:
-        logger.info("Email is sent for Verification")
-
-        response = ses.verify_email_identity(
-            EmailAddress=email
-        )
-
-        logger.info(response)
-
-
-def check_if_email_verified(email):
-    """Function to check if email id from user is verified """
-    list_emails = list_email_verified()
-    if email in list_emails:
-        logger.info("Email is already Verified")
-        return False
-    return True
-
-
-def list_email_verified():
-    """Function to return list of verified emails """
-
-    ses = boto3.client('ses')
-    response = ses.list_identities(
-        IdentityType='EmailAddress',
-        MaxItems=10
-    )
-    logger.info(response['Identities'])
-    return response['Identities']
 
 
 def send_notifications(email, sender, email_configuration):
@@ -69,7 +34,9 @@ def send_notifications(email, sender, email_configuration):
         signature=email_configuration.get('Signature'),
         email_us=email_configuration.get('Email_Us'),
         faq_url=email_configuration.get('FAQ_URL'),
-        unsubscribe=email_configuration.get('Unsubscribe_Email_ID'))
+        unsubscribe=email_configuration.get('Unsubscribe_Email_ID'),
+        banner="http://localhost:8000/media/" +
+               email_configuration.get('Banner'))
     # Define the attachment part and encode it using MIMEApplication.
     att = MIMEApplication(open(ATTACHMENT, 'rb').read())
 
@@ -116,7 +83,9 @@ def send_notifications_with_msg(email, sender, msg, email_configuration):
         signature=email_configuration.get('Signature'),
         email_us=email_configuration.get('Email_Us'),
         faq_url=email_configuration.get('FAQ_URL'),
-        unsubscribe=email_configuration.get('Unsubscribe_Email_ID'))
+        unsubscribe=email_configuration.get('Unsubscribe_Email_ID'),
+        banner="https://xds-admin.deloitteopenlxp.com/media/" +
+               email_configuration.get('Banner'))
 
     for each_recipient in RECIPIENT:
         try:
