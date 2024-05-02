@@ -1,93 +1,70 @@
 from django.db import models
-from django.forms import ValidationError
-from django.urls import reverse
 from model_utils.models import TimeStampedModel
 
-from openlxp_notifications.management.utils.ses_client import \
+from .management.utils.ses_client import \
     email_verification
 
 
-class ReceiverEmailConfiguration(TimeStampedModel):
-    """Model for Receiver Email Configuration """
+class recipient(models.Model):
+    """Model for POC Email Configuration """
 
+    name = models.CharField(max_length=200, help_text='Enter recipient name',
+                            null=False, blank=False)
     email_address = models.EmailField(
         max_length=254,
-        help_text='Enter email personas addresses to send log data',
+        help_text='Enter recipient Email ID',
         unique=True)
-
-    def get_absolute_url(self):
-        """ URL for displaying individual model records."""
-        return reverse('Configuration-detail', args=[str(self.id)])
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.id}'
+        return f'{self.email_address}'
 
     def save(self, *args, **kwargs):
         # Only for SMTP connections using SES
-        email_verification(self.email_address)
-        return super(ReceiverEmailConfiguration, self).save(*args, **kwargs)
+        # email_verification(self.email_address)
+        return super(recipient, self).save(*args, **kwargs)
 
 
-class SenderEmailConfiguration(TimeStampedModel):
-    """Model for Sender Email Configuration """
-
-    sender_email_address = models.EmailField(
-        max_length=254,
-        help_text='Enter sender email address to send log data from')
-
-    def save(self, *args, **kwargs):
-        if not self.pk and SenderEmailConfiguration.objects.exists():
-            raise ValidationError('There is can be only one '
-                                  'SenderEmailConfiguration instance')
-        email_verification(self.sender_email_address)
-        return super(SenderEmailConfiguration, self).save(*args, **kwargs)
-
-
-class EmailConfiguration(TimeStampedModel):
-    """Model for Email Configuration """
-
-    LOG_TYPE_CHOICES = (
-        ('attachment', 'Attach Logs to email'),
-        ('message', 'Send notification message'),
-    )
-
-    Subject = models.CharField(max_length=200,
-                               default='OpenLXP Conformance Alerts')
-
-    Email_Content = models.TextField(max_length=200, null=True, blank=True)
-
-    Signature = models.TextField(max_length=200)
-
-    Email_Us = models.EmailField(max_length=254,
-                                 help_text='Enter email address')
-    Banner = models.ImageField(upload_to='banner',
-                               help_text='add logo image',
-                               default='banner.jpg')
-
-    FAQ_URL = models.CharField(max_length=200)
-
-    Unsubscribe_Email_ID = models.EmailField(max_length=254,
-                                             help_text='Enter email address')
-    Content_Type = models.CharField(max_length=200, choices=LOG_TYPE_CHOICES,
-                                    help_text='Check readme files of the '
-                                              'components before choosing the '
-                                              ' log type')
-
-    HTML_File = models.FileField(upload_to='HTML_Files',
-                                 help_text='Check sample HTML files in the '
-                                           'readme files of the components')
-
-    def get_absolute_url(self):
-        """ URL for displaying individual model records."""
-        return reverse('Configuration-detail', args=[str(self.id)])
+class subject(TimeStampedModel):
+    """Model for Subject set up"""
+    subject = models.CharField(max_length=200,
+                               default='OpenLXP Conformance Alerts',
+                               help_text="Enter Subject for email")
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.id}'
+        return f'{self.subject}'
 
-    def save(self, *args, **kwargs):
-        if not self.pk and EmailConfiguration.objects.exists():
-            raise ValidationError('There is can be only one '
-                                  'EmailConfiguration instance')
-        return super(EmailConfiguration, self).save(*args, **kwargs)
+
+class template(TimeStampedModel):
+    """Model for template set up"""
+    template_id = models.BigAutoField(primary_key=True)
+    template_type = models.CharField(max_length=200,
+                                     help_text='Enter Template Type',
+                                     unique=True, null=False, blank=False)
+    template_body = models.TextField(help_text="Enter Email Message",
+                                     blank=True, null=True,)
+    template_inputs = models.JSONField(blank=True, null=True)
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return f'{self.template_type}'
+
+
+class email(TimeStampedModel):
+    """Model for email configuration"""
+    sender = models.EmailField(blank=True, null=True)
+    reference = models.CharField(max_length=200,
+                                 help_text='Enter email reference',
+                                 unique=True, null=False, blank=False)
+    subject = models.ForeignKey(subject, related_name='email_subject',
+                                on_delete=models.SET_NULL, blank=True,
+                                null=True,
+                                help_text="Select Email Subject")
+    template_type = models.ForeignKey(template, related_name='email_template',
+                                      on_delete=models.SET_NULL,
+                                      blank=True, null=True,
+                                      help_text="Select Email Template")
+    recipients = models.ManyToManyField(recipient,
+                                        related_name='email_recipients',
+                                        blank=True)

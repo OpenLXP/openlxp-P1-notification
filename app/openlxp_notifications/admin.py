@@ -1,46 +1,25 @@
 from django.contrib import admin
 
-from openlxp_notifications.models import (EmailConfiguration,
-                                          ReceiverEmailConfiguration,
-                                          SenderEmailConfiguration)
+from .models import (recipient, subject, template, email)
 
 
-@admin.register(ReceiverEmailConfiguration)
-class ReceiverEmailConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('email_address',)
+@admin.register(recipient)
+class recipientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email_address', )
 
 
-@admin.register(SenderEmailConfiguration)
-class SenderEmailConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('sender_email_address',)
+@admin.register(subject)
+class subjectAdmin(admin.ModelAdmin):
+    list_display = ('subject', )
 
 
-class EmailConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('Subject',
-                    'Content_Type',
-                    'Email_Content',
-                    'Signature',
-                    'Email_Us',
-                    'FAQ_URL',
-                    'Unsubscribe_Email_ID',
-                    'Banner',
-                    'HTML_File',
-                    )
-    fieldsets = (('Email Configuration', {'fields': ('Subject',
-                                                     'Content_Type',
-                                                     'Email_Content',
-                                                     'Signature',
-                                                     'Email_Us',
-                                                     'FAQ_URL',
-                                                     'Unsubscribe_Email_ID',
-                                                     'Banner',
-                                                     'HTML_File',),
-                                          'classes': ('class1',)
-                                          }),
-                 )
-
-    class Media:
-        js = ('category-field-admin.js',)
+@admin.register(template)
+class templateAdmin(admin.ModelAdmin):
+    list_display = ('template_type', )
 
 
-admin.site.register(EmailConfiguration, EmailConfigurationAdmin)
+@admin.register(email)
+class emailAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'subject',
+                    'template_type', 'reference', )
+    readonly_fields = ('created', 'modified', )

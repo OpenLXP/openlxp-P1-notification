@@ -28,7 +28,7 @@ load_dotenv()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY_VAL')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 mimetypes.add_type("text/css", ".css", True)
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'openlxp_notifications',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -84,7 +85,7 @@ MEDIA_URL = '/media/'
 #
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'mysql.connector.django',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
@@ -147,7 +148,7 @@ LOGGING = {
 
     'loggers': {
         'dict_config_logger': {
-            'handlers': ['console', 'file_logs'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -159,12 +160,12 @@ LOGGING = {
             'stream': sys.stdout,
             'formatter': 'simpleRe',
         },
-        'file_logs': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': LOG_PATH,
-            'formatter': 'simpleRe',
-        },
+        # 'file_logs': {
+        #     'level': 'WARNING',
+        #     'class': 'logging.FileHandler',
+        #     'filename': LOG_PATH,
+        #     'formatter': 'simpleRe',
+        # },
 
     },
 
