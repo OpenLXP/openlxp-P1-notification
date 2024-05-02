@@ -4,9 +4,9 @@ from unittest.mock import patch
 from ddt import ddt
 from django.test import tag
 
-from openlxp_notifications.management.commands.conformance_alerts import (
+from openlxp_P1_notification.management.commands.conformance_alerts import (
     send_log_email, send_log_email_with_msg)
-from openlxp_notifications.models import (EmailConfiguration,
+from openlxp_P1_notification.models import (EmailConfiguration,
                                           ReceiverEmailConfiguration,
                                           SenderEmailConfiguration)
 
@@ -26,11 +26,11 @@ class CommandTests(TestSetUp):
         attachment"""
 
         with patch(
-                'openlxp_notifications.management.commands.'
+                'openlxp_P1_notification.management.commands.'
                 'conformance_alerts.send_notifications',
                 return_value=None
         ) as mock_send_notification, \
-                patch('openlxp_notifications.models.email_verification',
+                patch('openlxp_P1_notification.models.email_verification',
                       return_value=None):
             receive_email = ReceiverEmailConfiguration(
                 email_address=self.receive_email_list1)
@@ -55,11 +55,11 @@ class CommandTests(TestSetUp):
         """Test for function to send emails of log file to personas with
         message"""
         with patch(
-                'openlxp_notifications.management.commands.'
+                'openlxp_P1_notification.management.commands.'
                 'conformance_alerts.send_notifications_with_msg',
                 return_value=None
         ) as mock_send_notifications_with_msg, \
-                patch('openlxp_notifications.models.email_verification',
+                patch('openlxp_P1_notification.models.email_verification',
                       return_value=None):
             send_email = SenderEmailConfiguration(
                 sender_email_address=self.sender_email)

@@ -1,4 +1,4 @@
-"""openlxp_notifications_project URL Configuration
+"""openlxp_P1_notification_project URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/

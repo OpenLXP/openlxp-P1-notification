@@ -56,9 +56,9 @@ class Migration(migrations.Migration):
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, editable=False, verbose_name='modified')),
                 ('sender', models.EmailField(blank=True, max_length=254, null=True)),
                 ('reference', models.CharField(help_text='Enter email reference', max_length=200, unique=True)),
-                ('recipients', models.ManyToManyField(blank=True, related_name='email_recipients', to='openlxp_notifications.recipient')),
-                ('subject', models.ForeignKey(blank=True, help_text='Select Email Subject', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='email_subject', to='openlxp_notifications.subject')),
-                ('template_type', models.ForeignKey(blank=True, help_text='Select Email Template', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='email_template', to='openlxp_notifications.template')),
+                ('recipients', models.ManyToManyField(blank=True, related_name='email_recipients', to='openlxp_P1_notification.recipient')),
+                ('subject', models.ForeignKey(blank=True, help_text='Select Email Subject', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='email_subject', to='openlxp_P1_notification.subject')),
+                ('template_type', models.ForeignKey(blank=True, help_text='Select Email Template', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='email_template', to='openlxp_P1_notification.template')),
             ],
             options={
                 'abstract': False,

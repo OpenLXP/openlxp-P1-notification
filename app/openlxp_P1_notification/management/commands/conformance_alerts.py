@@ -10,9 +10,9 @@ from django.core.management.base import (BaseCommand, CommandParser,
 from django.core.mail import EmailMessage
 from botocore.exceptions import ClientError
 
-from openlxp_notifications.models import (email)
+from openlxp_P1_notification.models import (email)
 
-from openlxp_notifications.serializer import EmailSerializer
+from openlxp_P1_notification.serializer import EmailSerializer
 
 logger = logging.getLogger('dict_config_logger')
 

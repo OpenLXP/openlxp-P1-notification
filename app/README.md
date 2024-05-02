@@ -1,1 +1,1 @@
-# openlxp-notifications
+# openlxp-P1-notification

@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.test import SimpleTestCase, tag
 
-from openlxp_notifications.models import (EmailConfiguration,
+from openlxp_P1_notification.models import (EmailConfiguration,
                                           ReceiverEmailConfiguration,
                                           SenderEmailConfiguration)
 
@@ -25,7 +25,7 @@ class ModelTests(SimpleTestCase):
     def test_create_two_sender_email_configuration(self):
         """Test that trying to create more than one EMAIL Configuration throws
         ValidationError """
-        with patch('openlxp_notifications.models.SenderEmailConfiguration'):
+        with patch('openlxp_P1_notification.models.SenderEmailConfiguration'):
             with self.assertRaises(ValidationError):
                 sender_email_address = 'example@test.com'
                 sender_email_address1 = 'example@test.com'
@@ -85,7 +85,7 @@ class ModelTests(SimpleTestCase):
     def test_create_two_email_configuration(self):
         """Test that trying to create more than one EMAIL Configuration throws
         ValidationError """
-        with patch('openlxp_notifications.models.EmailConfiguration'):
+        with patch('openlxp_P1_notification.models.EmailConfiguration'):
             with self.assertRaises(ValidationError):
                 Subject = 'Notifications'
                 Email_Content = 'Please find the email'

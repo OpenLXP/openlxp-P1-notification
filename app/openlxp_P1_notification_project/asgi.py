@@ -1,5 +1,5 @@
 """
-ASGI config for openlxp_notifications_project project.
+ASGI config for openlxp_P1_notification_project project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -12,6 +12,6 @@ import os
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-                      'openlxp_notifications_project.settings')
+                      'openlxp_P1_notification_project.settings')
 
 application = get_asgi_application()
