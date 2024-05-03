@@ -1,15 +1,13 @@
+from datetime import datetime
 import json
 import logging
 
-import requests
-
-from requests.auth import AuthBase
 
 from django.core.management.base import (BaseCommand, CommandParser,
                                          CommandError)
-from django.core.mail import EmailMessage
-from botocore.exceptions import ClientError
 
+from openlxp_P1_notification.management.utils.p1ps_requests import (
+    overall_health, send_email)
 from openlxp_P1_notification.models import (email)
 
 from openlxp_P1_notification.serializer import EmailSerializer
@@ -17,70 +15,15 @@ from openlxp_P1_notification.serializer import EmailSerializer
 logger = logging.getLogger('dict_config_logger')
 
 
-class TokenAuth(AuthBase):
-    """Attaches HTTP Authentication Header to the given Request object."""
-
-    def __call__(self, r, token_name='EMAIL_AUTH'):
-        # modify and return the request
-
-        r.headers[token_name] = 'ECXL3TLMFVHDTGMKDREVP457YI'
-        return r
-
-
-def send_email(email_type, template_inputs):
+def trigger_email_notifcation(email_type, template_inputs):
     """Command to trigger email notification"""
-    # print(email_type.subject)
-    # print(email_type.reference)
-    # print(email_type.template_type.template_body)
-    # # print(email_type.template_body)
-    # print(list(email_type.recepients.values_list("email_address", flat=True)))
-    # print(email_type.sender)
-
-    # Replace sender@example.com with your "From" address.
-    # This address must be verified with Amazon SES.
-    # SENDER = email_type.sender
-
-    # # Replace recipient@example.com with a "To" address. If your account
-    # # is still in the sandbox, this address must be verified.
-    # RECIPIENT = list(email_type.recipients.values_list("email_address",
-    #                                                    flat=True))
-
-    # # The subject line for the email.
-    # SUBJECT = email_type.subject
-
-    # # The HTML body of the email.
-    # BODY_HTML = email_type.template_type.template_body
-
-    # for each_recipient in RECIPIENT:
-    #     try:
-    #         # Provide the contents of the email.
-    #         mail = EmailMessage(SUBJECT, BODY_HTML, SENDER,
-    #                             [each_recipient])
-    #         mail.content_subtype = "html"
-
-    #         # mail.send()
-    #     # Display an error if something goes wrong.
-    #     except ClientError as e:
-    #         logger.error(e.response['Error']['Message'])
-    #         continue
 
     body_data = EmailSerializer(email_type).data
 
     body_data["template_inputs"] = template_inputs
     body_data = json.dumps(body_data)
-
-    headers = {'Content-Type': 'application/json'}
-
-    jar = requests.cookies.RequestsCookieJar()
-    jar.set('__Host-p1ps-staging-authservice-session-id-cookie',
-            'NlnUUosv8pQF85lKSwoFfVUjwbqy57Uskh1Mt9JJJ9pfwxqjk0h98tFooSfdvRvk',
-            domain='p1ps-il2.staging.dso.mil', path='/')
-
-    P1_response = requests.post(url='https://p1ps-il2.staging.dso.mil/api/teams/IPKRGXU5RFEUNPJSNXWBGBSBNE/emails/edlm-status-update',
-                                data=body_data, headers=headers,
-                                auth=TokenAuth(), cookies=jar)
-
-    print(P1_response.text)
+    overall_health()
+    send_email(body_data, str(email_type.template_type))
 
 
 class Command(BaseCommand):
@@ -102,8 +45,10 @@ class Command(BaseCommand):
         except email.DoesNotExist:
             raise CommandError('Email Reference "%s" does not exist' %
                                options['email_references'])
+        now = datetime.now()
+        dt = now.strftime("%d/%m/%Y %H:%M:%S")
         template_inputs = {
-                                        "datetime": "2024-01-01",
-                                        "name": "Karen Ann Jijo"
-                                }
-        send_email(email_type, template_inputs)
+            "datetime": dt,
+            "name": "FNAME LNAME"
+        }
+        trigger_email_notifcation(email_type, template_inputs)

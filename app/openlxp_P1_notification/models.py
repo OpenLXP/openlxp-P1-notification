@@ -1,9 +1,6 @@
 from django.db import models
 from model_utils.models import TimeStampedModel
 
-from .management.utils.ses_client import \
-    email_verification
-
 
 class recipient(models.Model):
     """Model for POC Email Configuration """
@@ -20,8 +17,6 @@ class recipient(models.Model):
         return f'{self.email_address}'
 
     def save(self, *args, **kwargs):
-        # Only for SMTP connections using SES
-        # email_verification(self.email_address)
         return super(recipient, self).save(*args, **kwargs)
 
 
