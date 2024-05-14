@@ -37,8 +37,8 @@ class template(TimeStampedModel):
     template_type = models.CharField(max_length=200,
                                      help_text='Enter Template Type',
                                      unique=True, null=False, blank=False)
-    template_body = models.TextField(help_text="Enter Email Message",
-                                     blank=True, null=True,)
+    message = models.TextField(help_text="Enter Email Message",
+                               blank=True, null=True,)
     template_inputs = models.JSONField(blank=True, null=True)
 
     def __str__(self):

@@ -1,9 +1,13 @@
 import logging
-import os
+
+from django.core.exceptions import ValidationError
 
 import requests
 
-from requests.auth import AuthBase
+
+from openlxp_P1_notification.management.utils.p1ps_configuration import (
+    SetCookies, TokenAuth, get_P1PS_base_endpoint, get_P1PS_team_ID)
+from openlxp_P1_notification.serializer import TemplateSerializer
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -11,86 +15,69 @@ headers = {'Content-Type': 'application/json'}
 
 
 """
-    Functions set up to extract environment values for
-    Platform One Postal Service (P1PS) API
+    Requests set up to verify using Platform One Postal Service (P1PS)
+    API Specification (1.0.0)
 
 """
-
-
-def get_P1PS_base_endpoint():
-    """Extracts P1PS base endpoint"""
-    P1PS_endpoint = "https://" + os.environ.get('P1PS_DOMAIN')
-
-    if P1PS_endpoint[0]:
-        logger.info("P1PS endpoint value  is present and set")
-    else:
-        logger.error("P1PS endpoint value is absent and not set")
-
-    return P1PS_endpoint
-
-
-def get_P1PS_team_token():
-    """Extracts P1PS base endpoint"""
-    team_token = os.environ.get('TEAM_TOKEN')
-
-    if team_token[0]:
-        logger.info("Team Token value  is present and set")
-    else:
-        logger.error("Team Token value is absent and not set")
-
-    return team_token
-
-
-def get_P1PS_team_ID():
-    """Extracts P1PS base endpoint"""
-    team_token = os.environ.get('TEAM_ID')
-
-    if team_token[0]:
-        logger.info("Team ID value  is present and set")
-    else:
-        logger.error("Team ID value is absent and not set")
-
-    return team_token
-
-
-"""
-    Configuration set up for Platform One Postal Service (P1PS)
-    API requests
-
-"""
-
-
-class TokenAuth(AuthBase):
-    """Attaches HTTP Authentication Header to the given Request object."""
-
-    def __call__(self, r, token_name='EMAIL_AUTH'):
-        # modify and return the request
-
-        r.headers[token_name] = get_P1PS_team_token()
-        return r
-
-
-def SetCookies():
-    """Sets requests cookies jar with P1 authorization cookies"""
-
-    jar = requests.cookies.RequestsCookieJar()
-    jar.set(os.environ.get('COOKIE_NAME'),
-            os.environ.get('COOKIE_VALUE'),
-            domain=os.environ.get('P1PS_DOMAIN'), path='/')
-
-    return jar
 
 
 def SendResponse(response):
     """Function to return response and error catches"""
 
     if response.status_code in [400, 401, 404, 500]:
-        logger.error(response.json)
+        logger.error(response.json())
+        return False
     elif response.status_code in [200, 201]:
         try:
             logger.info(response.json())
         except requests.RequestException:
             logger.warning(requests.RequestException)
+        return True
+
+
+def get_team():
+    """Request to verify user is a part team and check permissions"""
+    base_endpoint = get_P1PS_base_endpoint()
+    team_id = get_P1PS_team_ID()
+    team_id_list = []
+
+    url = base_endpoint + "/api/teams"
+
+    response = requests.get(url=url, headers=headers,
+                            auth=TokenAuth(), cookies=SetCookies())
+    response_success = SendResponse(response)
+    if response_success:
+        for team in response.json():
+            """iterating through different teams to find matching teams"""
+            if 'team_id' in team:
+                team_id_list += [team['team_id']]
+
+        if team_id not in team_id_list:
+            raise ValidationError("User does not have permission "
+                                  "to use Team ID ")
+
+
+def get_team_templates():
+    """Request to get templates associated with team """
+    base_endpoint = get_P1PS_base_endpoint()
+    team_id = get_P1PS_team_ID()
+
+    url = base_endpoint + "/api/teams/" + team_id + "/templates"
+
+    response = requests.get(url=url, headers=headers,
+                            auth=TokenAuth(), cookies=SetCookies())
+    response_success = SendResponse(response)
+    if response_success:
+        for template in response.json()['data']:
+            serializer = TemplateSerializer(data=template)
+
+            if not serializer.is_valid():
+                # If not received send error and bad request status
+                logger.error(serializer.errors)
+            else:
+                # If received save record in templates
+                logger.warning(serializer)
+                serializer.save()
 
 
 """
@@ -108,11 +95,15 @@ def overall_health():
 
     response = requests.get(url=url, headers=headers,
                             auth=TokenAuth(), cookies=SetCookies())
-    SendResponse(response)
+    response_success = SendResponse(response)
+    if response_success:
+        get_team()
 
 
 def send_email(body_data, template_type):
     """Request to send email via P1PS"""
+
+    # Check user Permissions to use team
 
     base_endpoint = get_P1PS_base_endpoint()
     team_id = get_P1PS_team_ID()
@@ -123,3 +114,14 @@ def send_email(body_data, template_type):
                              data=body_data, auth=TokenAuth(),
                              cookies=SetCookies())
     SendResponse(response)
+
+
+def get_email_request(request_id):
+    """Retrieves an Email request based on the requested ID."""
+    base_endpoint = get_P1PS_base_endpoint()
+    team_id = get_P1PS_team_ID()
+
+    url = base_endpoint + "/api/teams/" + team_id + "/emails/" + request_id
+    response = requests.get(url=url, headers=headers,
+                            auth=TokenAuth(), cookies=SetCookies())
+    return response

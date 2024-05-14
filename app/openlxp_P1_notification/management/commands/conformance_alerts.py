@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 import json
 import logging
 
@@ -8,22 +8,65 @@ from django.core.management.base import (BaseCommand, CommandParser,
 
 from openlxp_P1_notification.management.utils.p1ps_requests import (
     overall_health, send_email)
-from openlxp_P1_notification.models import (email)
+from openlxp_P1_notification.models import (email, recipient)
 
 from openlxp_P1_notification.serializer import EmailSerializer
 
 logger = logging.getLogger('dict_config_logger')
 
 
-def trigger_email_notifcation(email_type, template_inputs):
+def trigger_health_check():
+    """Command to trigger email health check"""
+    overall_health()
+
+
+def trigger_status_update(email_type):
     """Command to trigger email notification"""
 
     body_data = EmailSerializer(email_type).data
 
-    body_data["template_inputs"] = template_inputs
-    body_data = json.dumps(body_data)
-    overall_health()
-    send_email(body_data, str(email_type.template_type))
+    recipient_list = body_data['recipients']
+    now = dt.now()
+    datetimenow = now.strftime("%d/%m/%Y %H:%M:%S")
+
+    for recipient_email in recipient_list:
+        recipient_obj = recipient.objects.get(
+            email_address=recipient_email)
+
+        body_data['recipients'] = [recipient_email]
+
+        if 'name' in email_type.template_type.template_inputs:
+            body_data['template_inputs']['name'] = recipient_obj.name
+        if 'datetime' in email_type.template_type.template_inputs:
+            body_data['template_inputs']['datetime'] = datetimenow
+
+        body_data = json.dumps(body_data)
+
+        send_email(body_data, str(email_type.template_type))
+        # body_data["template_inputs"] = template_inputs
+        # body_data = json.dumps(body_data)
+
+
+# def trigger_subscibed_list_update(email_type, recipient_list):
+#     """Command to trigger email for list updates"""
+
+#     body_data = EmailSerializer(email_type).data
+
+#     now = dt.now()
+#     datetimenow = now.strftime("%d/%m/%Y %H:%M:%S")
+
+#     for recipient_email in recipient_list:
+#         recipient_obj = recipient.objects.get(
+#             email_address=recipient_email)
+
+#         body_data['recipients'] = [recipient_email]
+
+#         if 'name' in email_type.template_type.template_inputs:
+#             body_data['template_inputs']['name'] = recipient_obj.name
+#         if 'datetime' in email_type.template_type.template_inputs:
+#             body_data['template_inputs']['datetime'] = datetimenow
+
+#         body_data = json.dumps(body_data)
 
 
 class Command(BaseCommand):
@@ -45,10 +88,11 @@ class Command(BaseCommand):
         except email.DoesNotExist:
             raise CommandError('Email Reference "%s" does not exist' %
                                options['email_references'])
-        now = datetime.now()
-        dt = now.strftime("%d/%m/%Y %H:%M:%S")
-        template_inputs = {
-            "datetime": dt,
-            "name": "FNAME LNAME"
-        }
-        trigger_email_notifcation(email_type, template_inputs)
+        # now = datetime.now()
+        # dt = now.strftime("%d/%m/%Y %H:%M:%S")
+        # template_inputs = {
+        #     "datetime": dt,
+        #     "name": "FNAME LNAME"
+        # }
+        trigger_status_update(email_type)
+        # trigger_health_check()
