@@ -5,8 +5,12 @@ from model_utils.models import TimeStampedModel
 class recipient(models.Model):
     """Model for POC Email Configuration """
 
-    name = models.CharField(max_length=200, help_text='Enter recipient name',
-                            null=False, blank=False)
+    first_name = models.CharField(max_length=200,
+                                  help_text='Enter recipient name',
+                                  null=False, blank=False)
+    last_name = models.CharField(max_length=200,
+                                 help_text='Enter recipient name',
+                                 null=False, blank=False)
     email_address = models.EmailField(
         max_length=254,
         help_text='Enter recipient Email ID',

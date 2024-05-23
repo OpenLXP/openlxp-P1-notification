@@ -76,7 +76,7 @@ def get_team_templates():
                 logger.error(serializer.errors)
             else:
                 # If received save record in templates
-                logger.warning(serializer)
+                logger.info(serializer)
                 serializer.save()
 
 

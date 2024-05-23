@@ -5,7 +5,7 @@ from .models import (recipient, subject, template, email)
 
 @admin.register(recipient)
 class recipientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email_address', )
+    list_display = ('first_name', 'last_name', 'email_address', )
 
 
 @admin.register(subject)
@@ -21,6 +21,6 @@ class templateAdmin(admin.ModelAdmin):
 
 @admin.register(email)
 class emailAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'subject',
-                    'template_type', 'reference', )
+    list_display = ('reference', 'subject',
+                    'template_type', )
     readonly_fields = ('created', 'modified', )
