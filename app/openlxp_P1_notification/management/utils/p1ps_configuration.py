@@ -19,12 +19,14 @@ headers = {'Content-Type': 'application/json'}
 
 def get_P1PS_base_endpoint():
     """Extracts P1PS base endpoint"""
-    P1PS_endpoint = "https://" + os.environ.get('P1PS_DOMAIN')
 
-    if P1PS_endpoint[0]:
+    P1PS_domain = os.environ.get('P1PS_DOMAIN')
+
+    if P1PS_domain:
+        P1PS_endpoint = "https://" + P1PS_domain
         logger.info("P1PS endpoint value  is present and set")
     else:
-        logger.error("P1PS endpoint value is absent and not set")
+        raise ValueError("P1PS endpoint value is absent and not set")
 
     return P1PS_endpoint
 
@@ -33,10 +35,10 @@ def get_P1PS_team_token():
     """Extracts P1PS base endpoint"""
     team_token = os.environ.get('TEAM_TOKEN')
 
-    if team_token[0]:
+    if team_token:
         logger.info("Team Token value  is present and set")
     else:
-        logger.error("Team Token value is absent and not set")
+        raise ValueError("Team Token value is absent and not set")
 
     return team_token
 
@@ -45,10 +47,10 @@ def get_P1PS_team_ID():
     """Extracts P1PS base endpoint"""
     team_id = os.environ.get('TEAM_ID')
 
-    if team_id[0]:
+    if team_id:
         logger.info("Team ID value  is present and set")
     else:
-        logger.error("Team ID value is absent and not set")
+        raise ValueError("Team ID value is absent and not set")
 
     return team_id
 

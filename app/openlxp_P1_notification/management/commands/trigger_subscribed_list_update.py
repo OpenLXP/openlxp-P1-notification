@@ -21,9 +21,11 @@ def trigger_health_check():
     overall_health()
 
 
-def trigger_subscribed_list_update(email_type, recipient_list,
+def trigger_update(email_type, recipient_list,
                                    list_name, list_url):
     """Command to trigger email for list updates"""
+
+    trigger_health_check()
 
     now = dt.now()
     datetimenow = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -59,7 +61,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: CommandParser) -> None:
         # parser.add_argument('email_references', nargs="+", type=str)
-        parser.add_argument('email_references', type=str)
+        parser.add_argument('--email', type=str)
+        parser.add_argument('--recipient-list', metavar='N',
+                            type=str, nargs='+', help='a list of strings')
+
         return super().add_arguments(parser)
 
     def handle(self, *args, **options):
@@ -68,13 +73,12 @@ class Command(BaseCommand):
         # for email_reference in options['email_references']:
         try:
             email_type = email.objects.get(
-                reference=options['email_references'])
+                reference=options['email'])
         except email.DoesNotExist:
             raise CommandError('Email Reference "%s" does not exist' %
-                               options['email_references'])
+                               options['email'])
 
-        recipient_list = [('kjijo@deloitte.com', 'Karen', 'jijo')]
-        trigger_subscribed_list_update(email_type, recipient_list,
-                                       "List1",
-                                       "https://dev-xds.deloitteopenlxp.com/"
-                                       "lists/1")
+        trigger_update(email_type,
+                       [tuple(options['recipient_list'])],
+                       "List_Name",
+                       "List_url")

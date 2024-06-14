@@ -6,8 +6,10 @@ import requests
 
 
 from openlxp_P1_notification.management.utils.p1ps_configuration import (
-    SetCookies, TokenAuth, get_P1PS_base_endpoint, get_P1PS_team_ID)
+    SetCookies, TokenAuth, get_P1PS_base_endpoint, get_P1PS_team_ID,
+    get_P1PS_team_token)
 from openlxp_P1_notification.serializer import TemplateSerializer
+
 
 logger = logging.getLogger('dict_config_logger')
 
@@ -47,7 +49,7 @@ def get_team():
                             auth=TokenAuth(), cookies=SetCookies())
     response_success = SendResponse(response)
     if response_success:
-        for team in response.json():
+        for team in response.json()['data']:
             """iterating through different teams to find matching teams"""
             if 'team_id' in team:
                 team_id_list += [team['team_id']]
@@ -90,6 +92,8 @@ def get_team_templates():
 def overall_health():
     """Request to perform P1PS health check """
     base_endpoint = get_P1PS_base_endpoint()
+    get_P1PS_team_token()
+    get_P1PS_team_ID()
 
     url = base_endpoint + "/api/health"
 

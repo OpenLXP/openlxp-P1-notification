@@ -21,8 +21,10 @@ def trigger_health_check():
     overall_health()
 
 
-def trigger_status_update(email_type):
+def trigger_update(email_type):
     """Command to trigger email notification"""
+
+    trigger_health_check()
 
     body_data = EmailSerializer(email_type).data
 
@@ -72,4 +74,4 @@ class Command(BaseCommand):
             raise CommandError('Email Reference "%s" does not exist' %
                                options['email_references'])
 
-        trigger_status_update(email_type)
+        trigger_update(email_type)
