@@ -16,7 +16,7 @@ class subjectAdmin(admin.ModelAdmin):
 @admin.register(template)
 class templateAdmin(admin.ModelAdmin):
     list_display = ('template_type', )
-    readonly_fields = ['template_type', 'message']
+    readonly_fields = ['message']
 
 
 @admin.register(email)
