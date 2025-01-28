@@ -127,6 +127,7 @@ def send_email(body_data, template_type):
 
     try:
         url = base_endpoint + "/api/teams/" + team_id + "/emails/" + template_type
+        logger.error(url)
         response = requests.post(url=url, headers=headers,
                                 data=body_data, auth=TokenAuth(),
                                 cookies=SetCookies())
