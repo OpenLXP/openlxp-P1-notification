@@ -42,12 +42,21 @@ def trigger_update(email_type):
 
         body_data['recipients'] = [recipient_email]
 
-        if 'name' in email_type.template_type.template_inputs:
-            body_data['template_inputs']['name'] = (recipient_obj.first_name +
-                                                    " " +
-                                                    recipient_obj.last_name)
-        if 'datetime' in email_type.template_type.template_inputs:
-            body_data['template_inputs']['datetime'] = datetimenow
+        if email_type.template_type.template_inputs:
+
+            if 'name' in email_type.template_type.template_inputs:
+                body_data['template_inputs']['name'] = (recipient_obj.first_name +
+                                                        " " +
+                                                        recipient_obj.last_name)
+            if 'datetime' in email_type.template_type.template_inputs:
+                body_data['template_inputs']['datetime'] = datetimenow
+        else:
+            template_input = {"name" : (recipient_obj.first_name +
+                                                        " " +
+                                                        recipient_obj.last_name),
+                              "datetime" : datetimenow
+                            }
+            body_data['template_inputs'] = template_input
 
         body_data = json.dumps(body_data)
 

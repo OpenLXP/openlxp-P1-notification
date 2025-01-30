@@ -21,7 +21,7 @@ def trigger_health_check():
     overall_health()
 
 
-def trigger_update(email_type, recipient_list,
+def trigger_update(email_type, recipient_list, owner,
                                    list_name, list_url):
     """Command to trigger email for list updates"""
 
@@ -36,22 +36,28 @@ def trigger_update(email_type, recipient_list,
         body_data = copy.deepcopy(template_data)
 
         body_data['recipients'] = [recipient_id[0]]
-        first_name = recipient_id[1]
+        name = recipient_id[1]
+        author = owner
 
-        if 'first_name' in email_type.template_type.template_inputs:
-            max_len = body_data['template_inputs']['first_name']['max_length']
-            body_data['template_inputs']['first_name'] = first_name[:max_len]
-        if 'date_time' in email_type.template_type.template_inputs:
-            max_len = body_data['template_inputs']['date_time']['max_length']
-            body_data['template_inputs']['date_time'] = datetimenow[:max_len]
+        if 'name' in email_type.template_type.template_inputs:
+            max_len = body_data['template_inputs']['name']['max_length']
+            body_data['template_inputs']['name'] = name[:max_len]
+        if 'datetime' in email_type.template_type.template_inputs:
+            max_len = body_data['template_inputs']['datetime']['max_length']
+            body_data['template_inputs']['datetime'] = datetimenow[:max_len]
         if 'list_name' in email_type.template_type.template_inputs:
             max_len = body_data['template_inputs']['list_name']['max_length']
             body_data['template_inputs']['list_name'] = list_name[:max_len]
         if 'list_url' in email_type.template_type.template_inputs:
             max_len = body_data['template_inputs']['list_url']['max_length']
             body_data['template_inputs']['list_url'] = list_url[:max_len]
+        if 'author' in email_type.template_type.template_inputs:
+            max_len = body_data['template_inputs']['author']['max_length']
+            body_data['template_inputs']['author'] = author[:max_len]
+
 
         body_data = json.dumps(body_data)
+
         send_email(body_data, str(email_type.template_type))
 
 
@@ -80,5 +86,6 @@ class Command(BaseCommand):
 
         trigger_update(email_type,
                        [tuple(options['recipient_list'])],
+                       "Owner",
                        "List_Name",
                        "List_url")

@@ -5,6 +5,8 @@ import requests
 
 from requests.auth import AuthBase
 
+from openlxp_P1_notification_project import settings
+
 logger = logging.getLogger('dict_config_logger')
 
 headers = {'Content-Type': 'application/json'}
@@ -20,37 +22,40 @@ headers = {'Content-Type': 'application/json'}
 def get_P1PS_base_endpoint():
     """Extracts P1PS base endpoint"""
 
-    P1PS_domain = os.environ.get('P1PS_DOMAIN')
+    P1PS_domain = settings.P1PS_BASE_URL
 
     if P1PS_domain:
-        P1PS_endpoint = "https://" + P1PS_domain
+        # P1PS_endpoint = "https://" + P1PS_domain
         logger.info("P1PS endpoint value  is present and set")
     else:
-        raise ValueError("P1PS endpoint value is absent and not set")
+        logger.error(P1PS_domain)
+        logger.error("P1PS endpoint value is absent and not set")
 
-    return P1PS_endpoint
+    return P1PS_domain
 
 
 def get_P1PS_team_token():
     """Extracts P1PS base endpoint"""
-    team_token = os.environ.get('TEAM_TOKEN')
+    team_token = settings.P1PS_AUTH_TOKEN
 
     if team_token:
         logger.info("Team Token value  is present and set")
     else:
-        raise ValueError("Team Token value is absent and not set")
+        logger.error(team_token)
+        logger.error("Team Token value is absent and not set")
 
     return team_token
 
 
 def get_P1PS_team_ID():
     """Extracts P1PS base endpoint"""
-    team_id = os.environ.get('TEAM_ID')
+    team_id = settings.P1PS_TEAM_ID
 
     if team_id:
         logger.info("Team ID value  is present and set")
     else:
-        raise ValueError("Team ID value is absent and not set")
+        logger.error(team_id)
+        logger.error("Team ID value is absent and not set")
 
     return team_id
 
@@ -74,10 +79,13 @@ class TokenAuth(AuthBase):
 
 def SetCookies():
     """Sets requests cookies jar with P1 authorization cookies"""
+    logger.info("Setting cookies for email request P1ps")
 
     jar = requests.cookies.RequestsCookieJar()
-    jar.set(os.environ.get('COOKIE_NAME'),
-            os.environ.get('COOKIE_VALUE'),
-            domain=os.environ.get('P1PS_DOMAIN'), path='/')
+    if os.environ.get('COOKIE_NAME') and os.environ.get('COOKIE_VALUE'):
+        jar.set(os.environ.get('COOKIE_NAME'),
+                os.environ.get('COOKIE_VALUE'),
+                domain=settings.P1PS_BASE_URL, path='/')
+    logger.info(jar)
 
     return jar
